@@ -33,6 +33,7 @@
         tools:text="Name" />
 
 
+
     <GridView
         android:id="@+id/gvResults"
         android:layout_width="wrap_content"

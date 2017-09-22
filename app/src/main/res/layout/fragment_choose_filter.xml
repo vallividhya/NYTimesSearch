@@ -22,60 +22,100 @@
         <DatePicker
             android:id="@+id/dpBeginDate"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            />
+            android:layout_height="wrap_content"/>
 
-        <TextView android:id="@+id/tvSortOrder"
+        <RelativeLayout
+            android:id="@+id/rl1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/sortOrder"
-            android:layout_marginBottom="10dp"
-            android:layout_marginTop="-10dp"
-            android:layout_gravity="center_horizontal"
-            android:textSize="14dp"
-            android:textStyle="bold"/>
+            android:paddingBottom="10dp"
+            android:layout_gravity="center_horizontal">
 
-        <Spinner
-            android:id="@+id/spSortOrder"
-            android:layout_width="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:entries="@array/sort_order_array"
-            android:prompt="@string/sort_order_prompt"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"/>
+            <TextView android:id="@+id/tvSortOrder"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/sortOrder"
+                android:layout_marginBottom="10dp"
+                android:textSize="14dp"
+                android:textStyle="bold"/>
 
-        <TextView android:id="@+id/tvNewsDesk"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:text="@string/newsDesk"
-            android:textSize="14dp"
-            android:textStyle="bold"
-            android:layout_marginBottom="10dp"/>
+            <Spinner
+                android:id="@+id/spSortOrder"
+                android:layout_width="wrap_content"
+                android:entries="@array/sort_order_array"
+                android:prompt="@string/sort_order_prompt"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_toRightOf="@+id/tvSortOrder"
+                android:layout_toEndOf="@+id/tvSortOrder"
+                android:layout_marginLeft="24dp"
+                android:layout_marginStart="24dp" />
+        </RelativeLayout>
 
-        <CheckBox android:id="@+id/checkbox_arts"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/arts" />
-
-        <CheckBox android:id="@+id/checkbox_fashionStyle"
+        <RelativeLayout android:id="@+id/rl2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/fashionStyle" />
+            android:paddingBottom="10dp"
+            android:layout_gravity="center_horizontal">
+            
+                <TextView android:id="@+id/tvNewsDesk"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/newsDesk"
+                    android:textSize="14dp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="10dp"/>
 
-        <CheckBox android:id="@+id/checkbox_sports"
+                <LinearLayout android:id="@+id/ll1"
+                    android:orientation="vertical"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toRightOf="@id/tvNewsDesk"
+                    android:layout_alignTop="@id/tvNewsDesk"
+                   android:layout_marginLeft="10dp">
+
+                    <CheckBox android:id="@+id/checkbox_arts"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/arts" />
+
+                    <CheckBox android:id="@+id/checkbox_fashionStyle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/fashionStyle" />
+
+                    <CheckBox android:id="@+id/checkbox_sports"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/sports" />
+                </LinearLayout>
+        </RelativeLayout>
+
+        <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/sports" />
+            android:layout_marginBottom="15dp"
+            android:layout_gravity="center_horizontal">
 
-        <Button
-            android:id="@+id/btnFilterSave"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:text="@string/btnSave"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
-            android:background="@color/colorAccent"/>
+            <Button
+                android:id="@+id/btnFilterClear"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/btnClear"
+                android:layout_margin="10dp"
+                android:padding="10dp"
+                android:background="@color/colorAccent"/>
+            <Button
+                android:id="@+id/btnFilterSave"
+                android:layout_toRightOf="@id/btnFilterClear"
+                android:layout_toEndOf="@id/btnFilterClear"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/btnSave"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:background="@color/colorAccent"/>
+        </RelativeLayout>
+
     </LinearLayout>
 </ScrollView>

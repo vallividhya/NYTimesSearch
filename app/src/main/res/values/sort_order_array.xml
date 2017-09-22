@@ -3,5 +3,6 @@
     <string-array name="sort_order_array">
         <item>Oldest</item>
         <item>Newest</item>
+        <item>None</item>
     </string-array>
 </resources>

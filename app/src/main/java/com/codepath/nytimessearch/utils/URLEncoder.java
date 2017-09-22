@@ -14,6 +14,7 @@ public class URLEncoder {
     public static String encodeNewsDeskValues(boolean v1, boolean v2, boolean v3) {
         String param = "";
         StringBuilder sb = new StringBuilder();
+        // Only if one of the news desk values are selected, construct query param, else return empty string
         if (v1 || v2 || v3) {
             sb.append("news_desk.contains:(");
             if (v1) {

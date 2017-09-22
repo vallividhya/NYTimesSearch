@@ -20,6 +20,7 @@ import android.widget.Toast;
 import com.codepath.nytimessearch.R;
 import com.codepath.nytimessearch.adapters.ArticleArrayAdapter;
 import com.codepath.nytimessearch.fragments.ChooseFilterDialogFragment;
+import com.codepath.nytimessearch.listeners.EndlessScrollListener;
 import com.codepath.nytimessearch.model.Article;
 import com.codepath.nytimessearch.utils.URLEncoder;
 import com.loopj.android.http.AsyncHttpClient;
@@ -39,6 +40,8 @@ public class SearchActivity extends AppCompatActivity implements ChooseFilterDia
     EditText etQuery;
     GridView gvResults;
     Button btnSearch;
+    int page = 0;
+    int visibleScrollLimit = 12;
 
     ArrayList<Article> articlesList;
     ArticleArrayAdapter adapter;
@@ -61,7 +64,6 @@ public class SearchActivity extends AppCompatActivity implements ChooseFilterDia
         gvResults.setAdapter(adapter);
 
         // ClickListener for grid click
-
         gvResults.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
@@ -76,6 +78,21 @@ public class SearchActivity extends AppCompatActivity implements ChooseFilterDia
 
             }
         });
+        gvResults.setOnScrollListener(new EndlessScrollListener(visibleScrollLimit, page) {
+            @Override
+            public boolean onLoadMore(int page, int totalItemsCount) {
+                // Triggered only when new data needs to be appended to the list
+                // Add whatever code is needed to append new items to your AdapterView
+                loadNextDataFromApi(page);
+                return true;
+            }
+        });
+    }
+
+    private void loadNextDataFromApi(int page) {
+        this.page = page;
+        onFilterSave();
+
     }
 
     public void onFilterSearchResults() {
@@ -115,9 +132,36 @@ public class SearchActivity extends AppCompatActivity implements ChooseFilterDia
         String query = etQuery.getText().toString();
         RequestParams params = new RequestParams();
         params.put("api-key","66cf7a84e5f7471e94c70b7eb9ebecd4");
-        params.put("page", 0);
+        params.put("page", page);
         params.put("q", query);
+        SharedPreferences mSettings = getSharedPreferences("Settings", Context.MODE_PRIVATE);
+        boolean isFilterSet = mSettings.getBoolean("isFilterSet", false);
+        if (isFilterSet) {
+            params = addQueryParams(params);
+        }
         getArticles(params);
+    }
+
+    private RequestParams addQueryParams(RequestParams params) {
+        //params.put("api-key","66cf7a84e5f7471e94c70b7eb9ebecd4");
+        //params.put("page", 0);
+        SharedPreferences mSettings = getSharedPreferences("Settings", Context.MODE_PRIVATE);
+        String beginDate = mSettings.getString("beginDate", null);
+        if (beginDate != null && !beginDate.isEmpty()) {
+            params.put("begin_date", beginDate);
+        }
+        String sortOrder = mSettings.getString("sortOrder", null);
+        if (sortOrder != null && !sortOrder.isEmpty()) {
+            if (!sortOrder.equals("none")) {
+                params.put("sort", sortOrder);
+            }
+        }
+
+        String newsDeskParam = URLEncoder.encodeNewsDeskValues(mSettings.getBoolean("isArts", false), mSettings.getBoolean("isFashion", false), mSettings.getBoolean("isSports", false));
+        if (newsDeskParam != null && !newsDeskParam.isEmpty()) {
+            params.put("fq", newsDeskParam);
+        }
+        return params;
     }
 
 
@@ -126,23 +170,9 @@ public class SearchActivity extends AppCompatActivity implements ChooseFilterDia
         //Log.d("DEBUG", beginDate + " ... " + sortOrder) ;
         RequestParams params = new RequestParams();
         params.put("api-key","66cf7a84e5f7471e94c70b7eb9ebecd4");
-        params.put("page", 0);
-        SharedPreferences mSettings = getSharedPreferences("Settings", Context.MODE_PRIVATE);
-        String beginDate = mSettings.getString("beginDate", null);
-        if (beginDate != null && !beginDate.isEmpty()) {
-            params.put("begin_date", beginDate);
-        }
-        String sortOrder = mSettings.getString("sortOrder", null);
-        if (sortOrder != null && !sortOrder.isEmpty()) {
-            params.put("sort", sortOrder);
-        }
-
-        String newsDeskParam = URLEncoder.encodeNewsDeskValues(mSettings.getBoolean("isArts", false), mSettings.getBoolean("isFashion", false), mSettings.getBoolean("isSports", false));
-        if (newsDeskParam != null && !newsDeskParam.isEmpty()) {
-            params.put("fq",newsDeskParam);
-        }
+        params.put("page", page);
+        params = addQueryParams(params);
         getArticles(params);
-
     }
 
     private void getArticles(RequestParams params) {
@@ -165,6 +195,9 @@ public class SearchActivity extends AppCompatActivity implements ChooseFilterDia
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+//                if (statusCode == 429) {
+//
+//                }
                 Toast.makeText(getApplicationContext(), getResources().getString(R.string.failure_msg) , Toast.LENGTH_LONG).show();
                 Log.d("ERROR", errorResponse.toString());
             }

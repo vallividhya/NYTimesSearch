@@ -31,7 +31,7 @@ public class ChooseFilterDialogFragment extends BottomSheetDialogFragment {
 
     private DatePicker datePicker;
     private Spinner spinner;
-    private Button btnFilterSave;
+    private Button btnFilterSave, btnFilterClear;
     private CheckBox cbArts, cbFashion, cbSports;
     private SharedPreferences mSettings;
     public ChooseFilterDialogFragment() {
@@ -95,7 +95,7 @@ public class ChooseFilterDialogFragment extends BottomSheetDialogFragment {
         int month = cal.get(Calendar.MONTH);
         int day = cal.get(Calendar.DAY_OF_MONTH);
         datePicker.updateDate(year, month, day);
-        
+
         // Get spinner from view
         spinner = (Spinner) view.findViewById(R.id.spSortOrder);
 
@@ -103,6 +103,8 @@ public class ChooseFilterDialogFragment extends BottomSheetDialogFragment {
         spinner.setSelection(pos);
         // Get button Save
         btnFilterSave = (Button) view.findViewById(R.id.btnFilterSave);
+
+        btnFilterClear = (Button) view.findViewById(R.id.btnFilterClear);
 
         cbArts = (CheckBox) view.findViewById(R.id.checkbox_arts);
         cbArts.setChecked(mSettings.getBoolean("isArts", false));
@@ -126,6 +128,7 @@ public class ChooseFilterDialogFragment extends BottomSheetDialogFragment {
                 String beginDate = simpleDateFormat.format(cal.getTime());
 
                 SharedPreferences.Editor editor = mSettings.edit();
+                editor.putBoolean("isFilterSet", true);
                 editor.putString("beginDate", beginDate);
                 // Get Sort order - Oldest or newest from Spinner
                 String spinnerVal = spinner.getSelectedItem().toString();
@@ -138,6 +141,25 @@ public class ChooseFilterDialogFragment extends BottomSheetDialogFragment {
                 editor.apply();
                 OnChooseFilterDialogListener listener = (OnChooseFilterDialogListener) getActivity();
                 listener.onFilterSave();
+                dismiss();
+            }
+        });
+
+        btnFilterClear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                SharedPreferences.Editor editor = mSettings.edit();
+                editor.putBoolean("isFilterSet", false);
+                editor.putString("beginDate", "");
+                editor.putBoolean("isArts", false);
+                editor.putBoolean("isFashion", false);
+                editor.putBoolean("isSports", false);
+                editor.putString("sortOrder", "");
+                editor.apply();
+                cbArts.setChecked(false);
+                cbFashion.setChecked(false);
+                cbSports.setChecked(false);
+                spinner.setSelection(2); // Setting none
                 dismiss();
             }
         });

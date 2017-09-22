@@ -15,4 +15,5 @@
     <string name="arts">Arts</string>
     <string name="fashionStyle"><![CDATA[Fashion & Style]]></string>
     <string name="sports">Sports</string>
+    <string name="btnClear">Clear Settings</string>
 </resources>

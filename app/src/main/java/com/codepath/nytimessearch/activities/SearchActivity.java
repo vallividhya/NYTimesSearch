@@ -1,7 +1,10 @@
 package com.codepath.nytimessearch.activities;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -16,7 +19,9 @@ import android.widget.Toast;
 
 import com.codepath.nytimessearch.R;
 import com.codepath.nytimessearch.adapters.ArticleArrayAdapter;
+import com.codepath.nytimessearch.fragments.ChooseFilterDialogFragment;
 import com.codepath.nytimessearch.model.Article;
+import com.codepath.nytimessearch.utils.URLEncoder;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
@@ -29,7 +34,7 @@ import java.util.ArrayList;
 
 import cz.msebera.android.httpclient.Header;
 
-public class SearchActivity extends AppCompatActivity {
+public class SearchActivity extends AppCompatActivity implements ChooseFilterDialogFragment.OnChooseFilterDialogListener {
     String API_KEY = "66cf7a84e5f7471e94c70b7eb9ebecd4";
     EditText etQuery;
     GridView gvResults;
@@ -74,8 +79,13 @@ public class SearchActivity extends AppCompatActivity {
     }
 
     public void onFilterSearchResults() {
-        // Create an intent here to open a new activity / fragment showing filter options
-
+        //Open a dialog fragment showing filter options
+        FragmentManager fm = getSupportFragmentManager();
+        // Call new Instamce of dialogFrament, passing the title
+        ChooseFilterDialogFragment chooseFilterDialogFragment = ChooseFilterDialogFragment.newInstance(getResources().getString(R.string.filterDialogTitle));
+        //chooseFilterDialogFragment.setStyle(BottomSheetDialogFragment.STYLE_NORMAL, R.style.CustomDialog);
+        // Show dialog
+        chooseFilterDialogFragment.show(fm, getString(R.string.ChooseFilterFragmentTag));
     }
 
     @Override
@@ -103,12 +113,41 @@ public class SearchActivity extends AppCompatActivity {
 
     public void onArticleSearch(View view) {
         String query = etQuery.getText().toString();
-        AsyncHttpClient client = new AsyncHttpClient();
-        String url = "https://api.nytimes.com/svc/search/v2/articlesearch.json";
         RequestParams params = new RequestParams();
         params.put("api-key","66cf7a84e5f7471e94c70b7eb9ebecd4");
         params.put("page", 0);
         params.put("q", query);
+        getArticles(params);
+    }
+
+
+    @Override
+    public void onFilterSave() {
+        //Log.d("DEBUG", beginDate + " ... " + sortOrder) ;
+        RequestParams params = new RequestParams();
+        params.put("api-key","66cf7a84e5f7471e94c70b7eb9ebecd4");
+        params.put("page", 0);
+        SharedPreferences mSettings = getSharedPreferences("Settings", Context.MODE_PRIVATE);
+        String beginDate = mSettings.getString("beginDate", null);
+        if (beginDate != null && !beginDate.isEmpty()) {
+            params.put("begin_date", beginDate);
+        }
+        String sortOrder = mSettings.getString("sortOrder", null);
+        if (sortOrder != null && !sortOrder.isEmpty()) {
+            params.put("sort", sortOrder);
+        }
+
+        String newsDeskParam = URLEncoder.encodeNewsDeskValues(mSettings.getBoolean("isArts", false), mSettings.getBoolean("isFashion", false), mSettings.getBoolean("isSports", false));
+        if (newsDeskParam != null && !newsDeskParam.isEmpty()) {
+            params.put("fq",newsDeskParam);
+        }
+        getArticles(params);
+
+    }
+
+    private void getArticles(RequestParams params) {
+        AsyncHttpClient client = new AsyncHttpClient();
+        String url = "https://api.nytimes.com/svc/search/v2/articlesearch.json";
         client.get(url, params, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
@@ -130,6 +169,5 @@ public class SearchActivity extends AppCompatActivity {
                 Log.d("ERROR", errorResponse.toString());
             }
         });
-
     }
 }

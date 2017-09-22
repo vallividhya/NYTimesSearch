@@ -5,4 +5,14 @@
     <string name="search">Search</string>
     <string name="failure_msg">Something went wrong. Check back later</string>
     <string name="title_activity_article">ArticleActivity</string>
+    <string name="sort_order_prompt">Sort news by newest or oldest</string>
+    <string name="beginDate">Begin Date</string>
+    <string name="sortOrder">Sort Order</string>
+    <string name="filterDialogTitle">Search Settings</string>
+    <string name="ChooseFilterFragmentTag">fragment_choose_filter</string>
+    <string name="btnSave">Save</string>
+    <string name="newsDesk">News Desk</string>
+    <string name="arts">Arts</string>
+    <string name="fashionStyle"><![CDATA[Fashion & Style]]></string>
+    <string name="sports">Sports</string>
 </resources>

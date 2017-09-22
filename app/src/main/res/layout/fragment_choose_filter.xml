@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="wrap_content"
+    android:layout_width="wrap_content">
+
+    <LinearLayout
+        android:orientation="vertical" android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="15dp"
+        android:scrollbars="vertical"
+        android:scrollbarAlwaysDrawVerticalTrack="true">
+
+        <TextView android:id="@+id/tvBeginDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="@string/beginDate"
+            android:textSize="14dp"
+            android:textStyle="bold"
+            android:layout_marginBottom="10dp"/>
+
+        <DatePicker
+            android:id="@+id/dpBeginDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            />
+
+        <TextView android:id="@+id/tvSortOrder"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/sortOrder"
+            android:layout_marginBottom="10dp"
+            android:layout_marginTop="-10dp"
+            android:layout_gravity="center_horizontal"
+            android:textSize="14dp"
+            android:textStyle="bold"/>
+
+        <Spinner
+            android:id="@+id/spSortOrder"
+            android:layout_width="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:entries="@array/sort_order_array"
+            android:prompt="@string/sort_order_prompt"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"/>
+
+        <TextView android:id="@+id/tvNewsDesk"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="@string/newsDesk"
+            android:textSize="14dp"
+            android:textStyle="bold"
+            android:layout_marginBottom="10dp"/>
+
+        <CheckBox android:id="@+id/checkbox_arts"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/arts" />
+
+        <CheckBox android:id="@+id/checkbox_fashionStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/fashionStyle" />
+
+        <CheckBox android:id="@+id/checkbox_sports"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/sports" />
+
+        <Button
+            android:id="@+id/btnFilterSave"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="@string/btnSave"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:background="@color/colorAccent"/>
+    </LinearLayout>
+</ScrollView>

@@ -4,7 +4,7 @@
     tools:context="com.codepath.nytimessearch.activities.SearchActivity">
 
     <item android:id="@+id/miFilter"
-        android:icon="@drawable/ic_filterlist"
+        android:icon="@drawable/ic_filter_pink"
         app:showAsAction="ifRoom"
         android:title="Filter">
 

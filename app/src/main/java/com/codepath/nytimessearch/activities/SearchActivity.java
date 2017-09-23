@@ -105,10 +105,7 @@ public class SearchActivity extends AppCompatActivity implements ChooseFilterDia
     }
 
     private void loadNextDataFromApi(int page) {
-        //this.page = page;
-        //onFilterSave();
         String query = etQuery.getText().toString();
-        // if (!query.isEmpty()) {
         RequestParams params = new RequestParams();
         params.put("api-key","66cf7a84e5f7471e94c70b7eb9ebecd4");
         params.put("page", page);
@@ -202,14 +199,14 @@ public class SearchActivity extends AppCompatActivity implements ChooseFilterDia
 
         // On saving filter settings, perform a search (call API) only if there was a previous search performed.
         String query = etQuery.getText().toString();
-       // if (!query.isEmpty()) {
-            RequestParams params = new RequestParams();
-            params.put("api-key","66cf7a84e5f7471e94c70b7eb9ebecd4");
-            params.put("page", 0);
-            params.put("q", query.trim());
-            params = addQueryParams(params);
-            getArticles(params);
-       // }
+        resetEndlessScroll();
+        RequestParams params = new RequestParams();
+        params.put("api-key","66cf7a84e5f7471e94c70b7eb9ebecd4");
+        params.put("page", 0);
+        params.put("q", query.trim());
+        params = addQueryParams(params);
+        getArticles(params);
+
     }
 
     private void resetEndlessScroll() {

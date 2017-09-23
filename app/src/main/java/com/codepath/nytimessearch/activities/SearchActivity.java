@@ -4,25 +4,28 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.GridView;
 import android.widget.Toast;
 
 import com.codepath.nytimessearch.R;
-import com.codepath.nytimessearch.adapters.ArticleArrayAdapter;
+import com.codepath.nytimessearch.adapters.ArticlesAdapter;
 import com.codepath.nytimessearch.fragments.ChooseFilterDialogFragment;
-import com.codepath.nytimessearch.listeners.EndlessScrollListener;
+import com.codepath.nytimessearch.listeners.EndlessRecyclerViewScollListener;
 import com.codepath.nytimessearch.model.Article;
-import com.codepath.nytimessearch.utils.URLEncoder;
+import com.codepath.nytimessearch.utils.ArticleSearchURLEncoder;
+import com.codepath.nytimessearch.utils.NetworkUtil;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
@@ -38,13 +41,15 @@ import cz.msebera.android.httpclient.Header;
 public class SearchActivity extends AppCompatActivity implements ChooseFilterDialogFragment.OnChooseFilterDialogListener {
     String API_KEY = "66cf7a84e5f7471e94c70b7eb9ebecd4";
     EditText etQuery;
-    GridView gvResults;
+    //GridView gvResults;
     Button btnSearch;
-    int page = 0;
-    int visibleScrollLimit = 12;
+    int maxPages = 20;
 
     ArrayList<Article> articlesList;
-    ArticleArrayAdapter adapter;
+    //ArticleArrayAdapter adapter;
+    ArticlesAdapter adapter;
+    RecyclerView rvArticles;
+    EndlessRecyclerViewScollListener scrollListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,20 +62,25 @@ public class SearchActivity extends AppCompatActivity implements ChooseFilterDia
 
     public void setupViews() {
         etQuery = (EditText) findViewById(R.id.etQuery);
-        gvResults = (GridView) findViewById(R.id.gvResults);
+        // TODO: // Add listener to Clear results from previous search, when user types in a different query
+        //articlesList.clear();
         btnSearch = (Button) findViewById(R.id.btnSearch);
-        articlesList = new ArrayList<Article>();
-        adapter = new ArticleArrayAdapter(this, articlesList);
-        gvResults.setAdapter(adapter);
 
-        // ClickListener for grid click
-        gvResults.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        articlesList = new ArrayList<Article>();
+        rvArticles = (RecyclerView) findViewById(R.id.rvArticles);
+        adapter = new ArticlesAdapter(this, articlesList);
+        rvArticles.setAdapter(adapter);
+        //rvArticles.setLayoutManager(new GridLayoutManager(this, 2));
+        StaggeredGridLayoutManager rvLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+        rvArticles.setLayoutManager(rvLayoutManager);
+        adapter.setOnItemClickListener(new ArticlesAdapter.OnItemClickListener() {
+
             @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+            public void onItemClick(View itemView, int position) {
                 // Create an intent to display article
                 Intent intent = new Intent(getApplicationContext(), ArticleActivity.class);
                 // Get article to display
-                Article article = articlesList.get(i);
+                Article article = articlesList.get(position);
                 //Pass article into intent
                 intent.putExtra("article", article);
                 // Launch activity
@@ -78,21 +88,33 @@ public class SearchActivity extends AppCompatActivity implements ChooseFilterDia
 
             }
         });
-        gvResults.setOnScrollListener(new EndlessScrollListener(visibleScrollLimit, page) {
+
+        scrollListener = new EndlessRecyclerViewScollListener(rvLayoutManager) {
             @Override
-            public boolean onLoadMore(int page, int totalItemsCount) {
-                // Triggered only when new data needs to be appended to the list
-                // Add whatever code is needed to append new items to your AdapterView
-                loadNextDataFromApi(page);
-                return true;
+            public void onLoadMore(int pageNum, int totalItemsCount, RecyclerView view) {
+                Log.d("DEBUG", "Page num = " + pageNum + " , total items count = " + totalItemsCount);
+                // To limit the number of calls made in a day, load pages for a result only upto the maxPages value
+                // To make sure the app makes a maximum of 1000 calls per day as X-RateLimit-Limit-day for Article search API is 1000
+                 if (pageNum <= maxPages) {
+                     loadNextDataFromApi(pageNum);
+                 }
             }
-        });
+        };
+
+        rvArticles.addOnScrollListener(scrollListener);
     }
 
     private void loadNextDataFromApi(int page) {
-        this.page = page;
-        onFilterSave();
-
+        //this.page = page;
+        //onFilterSave();
+        String query = etQuery.getText().toString();
+        // if (!query.isEmpty()) {
+        RequestParams params = new RequestParams();
+        params.put("api-key","66cf7a84e5f7471e94c70b7eb9ebecd4");
+        params.put("page", page);
+        params.put("q", query.trim());
+        params = addQueryParams(params);
+        getArticles(params);
     }
 
     public void onFilterSearchResults() {
@@ -128,12 +150,23 @@ public class SearchActivity extends AppCompatActivity implements ChooseFilterDia
         return super.onOptionsItemSelected(item);
     }
 
+    // Click Listener for BtnSearch
     public void onArticleSearch(View view) {
+        Log.d("DEBUG", "Searching articles.......");
+        //page = 0;
         String query = etQuery.getText().toString();
+        // hide virtual keyboard
+        InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(),
+                InputMethodManager.RESULT_UNCHANGED_SHOWN);
+
+        // As this is a new search, clear the articles list off old search results
+        resetEndlessScroll();
+
         RequestParams params = new RequestParams();
         params.put("api-key","66cf7a84e5f7471e94c70b7eb9ebecd4");
-        params.put("page", page);
-        params.put("q", query);
+        params.put("page", 0);
+        params.put("q", query.trim());
         SharedPreferences mSettings = getSharedPreferences("Settings", Context.MODE_PRIVATE);
         boolean isFilterSet = mSettings.getBoolean("isFilterSet", false);
         if (isFilterSet) {
@@ -143,8 +176,6 @@ public class SearchActivity extends AppCompatActivity implements ChooseFilterDia
     }
 
     private RequestParams addQueryParams(RequestParams params) {
-        //params.put("api-key","66cf7a84e5f7471e94c70b7eb9ebecd4");
-        //params.put("page", 0);
         SharedPreferences mSettings = getSharedPreferences("Settings", Context.MODE_PRIVATE);
         String beginDate = mSettings.getString("beginDate", null);
         if (beginDate != null && !beginDate.isEmpty()) {
@@ -157,7 +188,7 @@ public class SearchActivity extends AppCompatActivity implements ChooseFilterDia
             }
         }
 
-        String newsDeskParam = URLEncoder.encodeNewsDeskValues(mSettings.getBoolean("isArts", false), mSettings.getBoolean("isFashion", false), mSettings.getBoolean("isSports", false));
+        String newsDeskParam = ArticleSearchURLEncoder.encodeNewsDeskValues(mSettings.getBoolean("isArts", false), mSettings.getBoolean("isFashion", false), mSettings.getBoolean("isSports", false));
         if (newsDeskParam != null && !newsDeskParam.isEmpty()) {
             params.put("fq", newsDeskParam);
         }
@@ -168,39 +199,94 @@ public class SearchActivity extends AppCompatActivity implements ChooseFilterDia
     @Override
     public void onFilterSave() {
         //Log.d("DEBUG", beginDate + " ... " + sortOrder) ;
-        RequestParams params = new RequestParams();
-        params.put("api-key","66cf7a84e5f7471e94c70b7eb9ebecd4");
-        params.put("page", page);
-        params = addQueryParams(params);
-        getArticles(params);
+
+        // On saving filter settings, perform a search (call API) only if there was a previous search performed.
+        String query = etQuery.getText().toString();
+       // if (!query.isEmpty()) {
+            RequestParams params = new RequestParams();
+            params.put("api-key","66cf7a84e5f7471e94c70b7eb9ebecd4");
+            params.put("page", 0);
+            params.put("q", query.trim());
+            params = addQueryParams(params);
+            getArticles(params);
+       // }
     }
 
-    private void getArticles(RequestParams params) {
-        AsyncHttpClient client = new AsyncHttpClient();
-        String url = "https://api.nytimes.com/svc/search/v2/articlesearch.json";
-        client.get(url, params, new JsonHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                JSONArray articlesJson = null;
+    private void resetEndlessScroll() {
+        // Clear list off old search results
+        articlesList.clear();
 
-                try {
-                    articlesJson = response.getJSONObject("response").getJSONArray("docs");
-                    // Adapter's notifydatasetChanged will be called automatically
-                    adapter.addAll(Article.fromJSONArray(articlesJson));
-                    Log.d("DEBUG", articlesList.toString());
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-
+        // Notify adapter of this change.
+        rvArticles.post(new Runnable() {
             @Override
-            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-//                if (statusCode == 429) {
-//
-//                }
-                Toast.makeText(getApplicationContext(), getResources().getString(R.string.failure_msg) , Toast.LENGTH_LONG).show();
-                Log.d("ERROR", errorResponse.toString());
+            public void run() {
+                adapter.notifyDataSetChanged();
             }
         });
+        // Reset State of scroll listener
+        scrollListener.resetState();
+    }
+
+
+    private void getArticles(final RequestParams params) {
+        // Making the API call in a handler with a delay of 1 second to stagger network call
+        // This is done to restrict the number of API calls made in a second to one, which would otherwise give a "API Rate Limit Exceeded" Error
+        // X-RateLimit-Limit-second = 1
+        final Handler handler = new Handler();
+
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                AsyncHttpClient client = new AsyncHttpClient();
+                String url = "https://api.nytimes.com/svc/search/v2/articlesearch.json";
+                Log.d("DEBUG", params.toString());
+
+                // Checking if internet is available
+                if (NetworkUtil.isNetworkAvailable(getApplicationContext()) && NetworkUtil.isOnline()) {
+
+                    client.get(url, params, new JsonHttpResponseHandler() {
+                        @Override
+                        public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                            JSONArray articlesJson = null;
+                            for (int i = 0; i < headers.length; i++) {
+                                Log.d("DEBUG", "Headers for article search API = " + headers[i]);
+                            }
+
+                            try {
+                                articlesJson = response.getJSONObject("response").getJSONArray("docs");
+                                // Adapter's notifydatasetChanged will be called automatically
+                                articlesList.addAll(Article.fromJSONArray(articlesJson));
+
+                                if (articlesList.isEmpty()) {
+                                    // No search results for that query string
+                                    // Tell this to the user
+                                    Toast.makeText(getApplicationContext(), getResources().getString(R.string.no_results_msg) , Toast.LENGTH_SHORT).show();
+                                    Log.d("DEBUG", "No articles to show");
+                                }
+                                adapter.notifyDataSetChanged();
+                                Log.d("DEBUG", articlesList.toString());
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                            if (statusCode != 429) {
+                                // API call returned a failure. Tell this to the user
+                                Toast.makeText(getApplicationContext(), getResources().getString(R.string.failure_msg) , Toast.LENGTH_SHORT).show();
+                                Log.d("ERROR", errorResponse.toString());
+                            }
+                        }
+                    });
+                } else {
+                    // No network connectivity- Tell this to the user
+                    Toast.makeText(getApplicationContext(), getResources().getString(R.string.no_internet_msg) , Toast.LENGTH_SHORT).show();
+                    Log.d("ERROR", "No network connectivity");
+                }
+
+            }
+        };
+        handler.postDelayed(runnable, 1000);
     }
 }

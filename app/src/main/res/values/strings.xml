@@ -4,6 +4,7 @@
     <string name="hint">Enter search query</string>
     <string name="search">Search</string>
     <string name="failure_msg">Something went wrong. Check back later</string>
+
     <string name="title_activity_article">ArticleActivity</string>
     <string name="sort_order_prompt">Sort news by newest or oldest</string>
     <string name="beginDate">Begin Date</string>
@@ -16,4 +17,6 @@
     <string name="fashionStyle"><![CDATA[Fashion & Style]]></string>
     <string name="sports">Sports</string>
     <string name="btnClear">Clear Settings</string>
+    <string name="no_internet_msg">No network connectivity</string>
+    <string name="no_results_msg">No search results for this query</string>
 </resources>

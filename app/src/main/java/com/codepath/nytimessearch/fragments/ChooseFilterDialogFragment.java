@@ -85,16 +85,22 @@ public class ChooseFilterDialogFragment extends BottomSheetDialogFragment {
 
         String date = mSettings.getString("beginDate", "");
         Calendar cal = Calendar.getInstance();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
-        try {
-            cal.setTime(sdf.parse(date));
-        } catch (ParseException e) {
-            e.printStackTrace();
+        if (!date.isEmpty()) {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+            try {
+                cal.setTime(sdf.parse(date));
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            int year = cal.get(Calendar.YEAR);
+            int month = cal.get(Calendar.MONTH);
+            int day = cal.get(Calendar.DAY_OF_MONTH);
+            datePicker.updateDate(year, month, day);
+        } else {
+            cal.clear();
         }
-        int year = cal.get(Calendar.YEAR);
-        int month = cal.get(Calendar.MONTH);
-        int day = cal.get(Calendar.DAY_OF_MONTH);
-        datePicker.updateDate(year, month, day);
+
+
 
         // Get spinner from view
         spinner = (Spinner) view.findViewById(R.id.spSortOrder);

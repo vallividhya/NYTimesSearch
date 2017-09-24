@@ -62,8 +62,6 @@ public class SearchActivity extends AppCompatActivity implements ChooseFilterDia
 
     public void setupViews() {
         etQuery = (EditText) findViewById(R.id.etQuery);
-        // TODO: // Add listener to Clear results from previous search, when user types in a different query
-        //articlesList.clear();
         btnSearch = (Button) findViewById(R.id.btnSearch);
 
         articlesList = new ArrayList<Article>();
@@ -128,6 +126,32 @@ public class SearchActivity extends AppCompatActivity implements ChooseFilterDia
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_search, menu);
+
+       /* MenuItem searchItem = menu.findItem(R.id.action_search);
+        final SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+        // Expand the search view and request focus
+        searchItem.expandActionView();
+        searchView.requestFocus();
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                // perform query here
+                onArticleSearch(query);
+                // workaround to avoid issues with some emulators and keyboard devices firing twice if a keyboard enter is used
+                // see https://code.google.com/p/android/issues/detail?id=24599
+                searchView.clearFocus();
+
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+        });
+        return super.onCreateOptionsMenu(menu);*/
+
         return true;
     }
 
@@ -143,6 +167,9 @@ public class SearchActivity extends AppCompatActivity implements ChooseFilterDia
             onFilterSearchResults();
             return true;
         }
+//        } else if (id == R.id.action_search){
+//            return true;
+//        }
 
         return super.onOptionsItemSelected(item);
     }

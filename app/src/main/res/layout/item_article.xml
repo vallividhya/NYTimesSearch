@@ -8,7 +8,7 @@
     android:layout_margin="3dp"
     android:background="@color/colorGrey">
 
-    <ImageView
+    <com.codepath.nytimessearch.utils.DynamicHeightImageView
         android:id="@+id/ivImage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

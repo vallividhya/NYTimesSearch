@@ -8,6 +8,7 @@ import android.os.Handler;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -15,8 +16,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.Toast;
 
 import com.codepath.nytimessearch.R;
@@ -38,18 +37,16 @@ import java.util.ArrayList;
 
 import cz.msebera.android.httpclient.Header;
 
+
 public class SearchActivity extends AppCompatActivity implements ChooseFilterDialogFragment.OnChooseFilterDialogListener {
     String API_KEY = "66cf7a84e5f7471e94c70b7eb9ebecd4";
-    EditText etQuery;
-    //GridView gvResults;
-    Button btnSearch;
     int maxPages = 20;
 
     ArrayList<Article> articlesList;
-    //ArticleArrayAdapter adapter;
     ArticlesAdapter adapter;
     RecyclerView rvArticles;
     EndlessRecyclerViewScollListener scrollListener;
+    SearchView searchView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,14 +58,11 @@ public class SearchActivity extends AppCompatActivity implements ChooseFilterDia
     }
 
     public void setupViews() {
-        etQuery = (EditText) findViewById(R.id.etQuery);
-        btnSearch = (Button) findViewById(R.id.btnSearch);
-
         articlesList = new ArrayList<Article>();
         rvArticles = (RecyclerView) findViewById(R.id.rvArticles);
         adapter = new ArticlesAdapter(this, articlesList);
         rvArticles.setAdapter(adapter);
-        //rvArticles.setLayoutManager(new GridLayoutManager(this, 2));
+
         StaggeredGridLayoutManager rvLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
         rvArticles.setLayoutManager(rvLayoutManager);
         adapter.setOnItemClickListener(new ArticlesAdapter.OnItemClickListener() {
@@ -103,7 +97,7 @@ public class SearchActivity extends AppCompatActivity implements ChooseFilterDia
     }
 
     private void loadNextDataFromApi(int page) {
-        String query = etQuery.getText().toString();
+        String query = searchView.getQuery().toString();
         RequestParams params = new RequestParams();
         params.put("api-key","66cf7a84e5f7471e94c70b7eb9ebecd4");
         params.put("page", page);
@@ -127,11 +121,8 @@ public class SearchActivity extends AppCompatActivity implements ChooseFilterDia
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_search, menu);
 
-       /* MenuItem searchItem = menu.findItem(R.id.action_search);
-        final SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
-        // Expand the search view and request focus
-        searchItem.expandActionView();
-        searchView.requestFocus();
+       MenuItem searchItem = menu.findItem(R.id.action_search);
+        searchView = (SearchView) searchItem.getActionView();
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -150,9 +141,9 @@ public class SearchActivity extends AppCompatActivity implements ChooseFilterDia
                 return false;
             }
         });
-        return super.onCreateOptionsMenu(menu);*/
+        return super.onCreateOptionsMenu(menu);
 
-        return true;
+       // return true;
     }
 
     @Override
@@ -167,18 +158,13 @@ public class SearchActivity extends AppCompatActivity implements ChooseFilterDia
             onFilterSearchResults();
             return true;
         }
-//        } else if (id == R.id.action_search){
-//            return true;
-//        }
-
         return super.onOptionsItemSelected(item);
     }
 
-    // Click Listener for BtnSearch
-    public void onArticleSearch(View view) {
+    public void onArticleSearch(String query) {
         Log.d("DEBUG", "Searching articles.......");
         //page = 0;
-        String query = etQuery.getText().toString();
+        //String query = etQuery.getText().toString();
         // hide virtual keyboard
         InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(),
@@ -225,7 +211,7 @@ public class SearchActivity extends AppCompatActivity implements ChooseFilterDia
         //Log.d("DEBUG", beginDate + " ... " + sortOrder) ;
 
         // On saving filter settings, perform a search (call API) only if there was a previous search performed.
-        String query = etQuery.getText().toString();
+        String query = searchView.getQuery().toString();
         resetEndlessScroll();
         RequestParams params = new RequestParams();
         params.put("api-key","66cf7a84e5f7471e94c70b7eb9ebecd4");
@@ -311,6 +297,6 @@ public class SearchActivity extends AppCompatActivity implements ChooseFilterDia
 
             }
         };
-        handler.postDelayed(runnable, 1000);
+        handler.postDelayed(runnable, 300);
     }
 }

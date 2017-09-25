@@ -3,19 +3,20 @@ package com.codepath.nytimessearch.model;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.parceler.Parcel;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
  * Created by vidhya on 9/19/17.
  */
 
-public class Article implements Serializable{
+@Parcel
+public class Article {
 
-    String webUrl;
-    String headLine;
-    String thumbNail;
+    public String webUrl;
+    public String headLine;
+    public String thumbNail;
 
     public String getWebUrl() {
         return webUrl;
@@ -42,6 +43,16 @@ public class Article implements Serializable{
     }
 
 
+    // Empty constructor for the Parceler library
+    public Article() {
+
+    }
+
+    public Article(String webUrl, String headLine, String thumbNail) {
+        this.webUrl = webUrl;
+        this.headLine = headLine;
+        this.thumbNail = thumbNail;
+    }
 
     public Article(JSONObject jsonObject) {
         try {

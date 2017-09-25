@@ -60,14 +60,6 @@ public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.ViewHo
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         Article article = mArticles.get(position);
-
-//        ImageView articleImageView = holder.imageView;
-//        articleImageView.setImageResource(0);
-//        String url = article.getThumbNail();
-//        if (!url.isEmpty()) {
-//            Picasso.with(getContext()).load(url).into(articleImageView);
-//        }
-
         DynamicHeightImageView articleImageView = holder.imageView;
         articleImageView.setImageResource(0);
         String url = article.getThumbNail();

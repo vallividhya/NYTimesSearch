@@ -32,6 +32,7 @@ import com.loopj.android.http.RequestParams;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.parceler.Parcels;
 
 import java.util.ArrayList;
 
@@ -74,7 +75,7 @@ public class SearchActivity extends AppCompatActivity implements ChooseFilterDia
                 // Get article to display
                 Article article = articlesList.get(position);
                 //Pass article into intent
-                intent.putExtra("article", article);
+                intent.putExtra("article", Parcels.wrap(article));
                 // Launch activity
                 startActivity(intent);
 
@@ -142,8 +143,6 @@ public class SearchActivity extends AppCompatActivity implements ChooseFilterDia
             }
         });
         return super.onCreateOptionsMenu(menu);
-
-       // return true;
     }
 
     @Override

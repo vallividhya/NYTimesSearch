@@ -238,7 +238,7 @@ public class SearchActivity extends AppCompatActivity implements ChooseFilterDia
 
 
     private void getArticles(final RequestParams params) {
-        // Making the API call in a handler with a delay of 1 second to stagger network call
+        // Making the API call in a handler with a delay of 300 ms to stagger network call
         // This is done to restrict the number of API calls made in a second to one, which would otherwise give a "API Rate Limit Exceeded" Error
         // X-RateLimit-Limit-second = 1
         final Handler handler = new Handler();
